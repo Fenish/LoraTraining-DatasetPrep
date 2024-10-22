@@ -1,0 +1,6 @@
+augmentation/venv
+node_modules
+pnpm-lock.yaml
+package-lock.json
+.env
+dataset
