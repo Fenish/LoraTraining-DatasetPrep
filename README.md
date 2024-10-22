@@ -2,6 +2,12 @@
 
 ## Pre Requisites
 
+### For now OLLAMA LLAVA:34b is REQUIRED
+
+```sh
+ollama run llava:34b
+```
+
 At least 100 Images for training inside `dataset/original_images` folder
 
 
