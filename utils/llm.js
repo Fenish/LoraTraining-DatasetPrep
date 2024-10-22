@@ -27,7 +27,7 @@ const ollama = new Ollama({
 export async function useLLAVA(image_base64_data, promptType) {
 	const replacedPrompt = USER_PROMPT.replaceAll("[IMAGE_STYLE]", promptType);
 	const response = await ollama.chat({
-		model: "llava:7b",
+		model: "llava:34b",
 		messages: [
 			{
 				role: "user",
