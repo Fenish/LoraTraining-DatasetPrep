@@ -36,6 +36,11 @@ export async function renameImages() {
 }
 
 async function generatePrompt(pngFile, base64_data, promptType) {
+    const pathToSave = path.join(captions_dir, pngFile.replace('.png', '.txt'));
+    if (fs.existsSync(pathToSave)) {
+        console.log(`${pngFile} already exists, skipping...`);
+        return;
+    }
     const prompt = await useLLAVA(base64_data, promptType);
     await fs.writeFile(path.join(captions_dir, pngFile.replace('.png', '.txt')), prompt);
 }
