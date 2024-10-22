@@ -36,7 +36,6 @@ export async function renameImages() {
 }
 
 async function generatePrompt(pngFile, base64_data, promptType) {
-    console.log("Generating prompt for: " + pngFile);
     const prompt = await useLLAVA(base64_data, promptType);
     await fs.writeFile(path.join(captions_dir, pngFile.replace('.png', '.txt')), prompt);
 }
@@ -47,18 +46,26 @@ export async function captionImages(promptType) {
         const files = await fs.readdir(image_dir);
         const pngFiles = files.filter(file => path.extname(file) === '.png');
 
-        // Create an array of promises for processing images
-        const tasks = pngFiles.map(async (pngFile) => {
-            const fullPath = path.join(image_dir, pngFile);  // Get full path
-            const fileBuffer = await fs.readFile(fullPath);
-            const base64_data = fileBuffer.toString('base64');
+        // Split the pngFiles array into chunks of 20
+        const chunkSize = 20;
+        for (let i = 0; i < pngFiles.length; i += chunkSize) {
+            const chunk = pngFiles.slice(i, i + chunkSize); // Get the next chunk of 20 files
 
-            // Call the generatePrompt function
-            return generatePrompt(pngFile, base64_data, promptType);
-        });
+            // Create an array of promises for processing the current chunk
+            const tasks = chunk.map(async (pngFile) => {
+                const fullPath = path.join(image_dir, pngFile);  // Get full path
+                const fileBuffer = await fs.readFile(fullPath);
+                const base64_data = fileBuffer.toString('base64');
 
-        // Wait for all tasks to complete
-        await Promise.all(tasks);
+                // Call the generatePrompt function
+                return generatePrompt(pngFile, base64_data, promptType);
+            });
+
+            // Wait for this chunk to complete before processing the next chunk
+            console.log(`Processing Batch: ${i / chunkSize + 1} / ${Math.ceil(pngFiles.length / chunkSize)}`);
+            await Promise.all(tasks);
+        }
+
         console.log("Captioning Done.");
     } catch (error) {
         console.error("Error captioning images:", error);
